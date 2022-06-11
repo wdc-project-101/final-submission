@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>When2Chill - Event</title>
+    <meta charset="UTF-8">
+
+    <!-- links and script references -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="/stylesheets/main.css">
+    <script src="https://kit.fontawesome.com/7cb355c76c.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <script src="/javascripts/vue.js" defer></script>
+
+</head>
+
+<body>
+    <!-- container for the whole page -->
+    <div class="container w-auto" id="vue">
+        <!-- creating a row to use for grid setup -->
+        <div class="row pt-3">
+
+            <!-- left column for users with accounts-->
+            <div class="col-lg-3 offset-lg-1" id="sidenav-placeholder" v-if="user_id != ''">
+                <!-- this div only appears when screen is smaller than 'lg' size -->
+                <!-- holds the button that toggles the offcanvas navbar -->
+                <div class="d-flex align-items-center d-lg-none">
+                    <button class="btn btn-light" type="button" data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasSideNavbar" aria-controls="offcanvasSideNavbar">My
+                        profile</button>
+                </div>
+
+                <!-- our navbar with the ability to toggle for offcanvas -->
+                <nav class="navbar navbar-expand-lg mx-0">
+                    <div id="offcanvasSideNavbar" class="offcanvas offcanvas-start" tabindex="-1"
+                        style="visibility: hidden;" aria-hidden="true">
+                        <!-- offcanvas header -->
+                        <div class="offcanvas-header">
+                            <button class="btn-close text-reset ms-auto" type="button" data-bs-dismiss="offcanvas"
+                                aria-label="Close"></button>
+                        </div>
+
+                        <!-- offcanvas body which can also act as the regular body -->
+                        <div class="offcanvas-body d-block px-2 px-lg-0">
+
+                            <!-- card to hold left sidebar contents -->
+                            <div class="card overflow-hidden">
+
+                                <!-- use avatar-img class with our own css -->
+                                <img v-bind:src="image"
+                                    class="card-img-top avatar-img mx-auto mt-3" alt="image here">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">{{ firstname }} {{ lastname }}</h5>
+                                    <p class="card-text">@{{ user_id }}</p>
+                                    <button type="button" class="btn btn-light btn-sm shadow-sm border"
+                                        data-bs-toggle="modal" data-bs-target="#edit-user">Change user
+                                        details</button>
+                                    <hr>
+                                    <button type="button" class="btn btn-light btn-sm shadow-sm border"
+                                        data-bs-toggle="modal" data-bs-target="#signout-user">Sign Out</button>
+                                </div>
+                                <div class="list-group list-group-flush">
+                                    <a href="/home.html" class="list-group-item list-group-item-action">Dashboard
+                                    </a>
+                                </div>
+                                <div class="list-group list-group-flush" v-for="item in hostedevents"
+                                    :id="item.eid">
+                                    <a v-bind:href="'/event.html?event_id=' + item.eid"
+                                        class="list-group-item list-group-item-action">
+                                        {{ item.e_name }}
+                                    </a>
+                                </div>
+                                <div class="list-group list-group-flush" v-for="item in events" :id="item.eid">
+                                    <a v-bind:href="'/event.html?event_id=' + item.eid"
+                                        class="list-group-item list-group-item-action">
+                                        {{ item.e_name }}
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- card to hold left sidebar contents -->
+                            <div class="card overflow-hidden mt-5" v-if="isAdmin">
+                                <div class="card-header">Admin Panel</div>
+
+                                <div class="card-body">
+                                    <div class="input-group">
+                                        <input type="search" id="u_search" class="form-control"
+                                            placeholder="Search user" required>
+                                        <button type="button" class="btn btn-primary rounded-end">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                        <span class="validity"></span>
+                                    </div>
+                                    <div class="input-group mt-3">
+                                        <input type="search" id="e_search" class="form-control"
+                                            placeholder="Search event" required>
+                                        <button type="button" class="btn btn-primary rounded-end" @click = "adminEvent()">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                        <span class="validity"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </nav>
+            </div>
+
+
+            <!-- left column for users without accounts-->
+            <div class="col-lg-3 offset-lg-1" id="sidenav-guest" v-if="!user_id">
+                <!-- this div only appears when screen is smaller than 'lg' size -->
+                <!-- holds the button that toggles the offcanvas navbar -->
+                <div class="d-flex align-items-center d-lg-none">
+                    <button class="btn btn-dark" type="button" data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasSideNavbar" aria-controls="offcanvasSideNavbar">My
+                        profile</button>
+                </div>
+
+                <!-- our navbar with the ability to toggle for offcanvas -->
+                <nav class="navbar navbar-expand-lg mx-0">
+                    <div id="offcanvasSideNavbar" class="offcanvas offcanvas-start" tabindex="-1"
+                        style="visibility: hidden;" aria-hidden="true">
+                        <!-- offcanvas header -->
+                        <div class="offcanvas-header">
+                            <button class="btn-close text-reset ms-auto" type="button" data-bs-dismiss="offcanvas"
+                                aria-label="Close"></button>
+                        </div>
+
+                        <!-- offcanvas body which can also act as the regular body -->
+                        <div class="offcanvas-body d-block px-2 px-lg-0">
+                            <!-- card to hold left sidebar contents -->
+                            <div class="card overflow-hidden">
+                                <div class="card-header text-center">
+                                    Guest Details
+                                </div>
+                                <ul class="nav nav-tabs mt-2">
+                                    <li class="nav-item">
+                                        <a class="nav-link active text-dark" aria-current="true"
+                                            data-bs-toggle="tab" href="#newguest">New Guest</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" data-bs-toggle="tab"
+                                            href="#prevguest">Previous Guest</a>
+                                    </li>
+                                </ul>
+                                <!-- no image for guests -->
+                                <form class="card-body text-center tab-content">
+                                    <div class="tab-pane active" id="newguest">
+                                        <div class="container-fluid">
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <label for="guest_first" class="form-label">First name</label>
+                                                    <input type="text" class="form-control" id="guest_first">
+                                                </div>
+
+                                                <div class="col-12">
+                                                    <label for="guest_last" class="form-label">Last name</label>
+                                                    <input type="text" class="form-control" id="guest_last">
+                                                </div>
+
+                                                <div class="col-12">
+                                                    <label for="guest_address" class="form-label">Address</label>
+                                                    <input type="text" class="form-control" id="guest_address">
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <button type="button" class="btn btn-success"
+                                                @click="createGuest()">Confirm</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="tab-pane" id="prevguest">
+                                        <div class="container-fluid">
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <label for="guest-user" class="form-label">Guest
+                                                        username</label>
+                                                    <input class="form-control" id="guest_user">
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <button type="button" class="btn btn-success"
+                                                @click="loginGuest()">Confirm</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+
+
+
+
+            <!-- middle column -->
+            <div class="col-lg-6 col-md-8">
+                <div class="card mx-auto my-auto mt-2">
+                    <div class="card-header">
+                        {{ title }}
+                    </div>
+
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="event-name" class="form-label">Event Title</label>
+                            <div class="form-check form-switch d-inline-block float-end" v-if="isHost">
+                                <input class="form-check-input" type="checkbox" id="event-switch" v-model="evrdonly" @click="modifyEvent('event-switch')">
+                                <label class="form-check-label" for="event-switch">Edit</label>
+                            </div>
+                            <input type="text" id="event-name" class="form-control" v-bind:readonly="!evrdonly" v-model="title">
+                        </div>
+                        <div class="mb-3">
+                            <label for="event-place" class="form-label">Event Location</label>
+                            <div class="form-check form-switch d-inline-block float-end" v-if="isHost">
+                                <input class="form-check-input" type="checkbox" id="location-switch" v-model="lcrdonly" @click="modifyEvent('location-switch')">
+                                <label class="form-check-label" for="location-switch">Edit</label>
+                            </div>
+                            <input type="text" id="event-place" class="form-control" v-bind:readonly="!lcrdonly" v-model="location">
+                        </div>
+                        <div class="mb-3">
+                            <label for="event-desc" class="form-label">Event Description</label>
+                            <div class="form-check form-switch d-inline-block float-end" v-if="isHost">
+                                <input class="form-check-input" type="checkbox" id="desc-switch" v-model="dscrdonly" @click="modifyEvent('desc-switch')">
+                                <label class="form-check-label" for="desc-switch">Edit</label>
+                            </div>
+                            <textarea id="event-desc" class="form-control" v-bind:readonly="!dscrdonly" v-model="description" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mx-auto my-auto mt-2">
+                    <div class="card-header">
+                        Event Timeslots
+                    </div>
+
+                    <div class="card-body">
+                        <!-- will need to use v-for to populate this card with the time slots -->
+                        <form id="form0">
+                            <div class="row border border-3 rounded mb-3" v-for="item in times" :id="item.tid">
+                                <div class="form-floating my-2 col-5">
+                                    <input type="datetime-local" class="form-control" v-bind:readonly="!isHost" name="times" v-model="item.start">
+                                    <label for="start-time">&nbsp;&nbsp;&nbsp;Start Time (AM/PM)</label>
+                                </div>
+                                <div class="form-floating my-2 col-5">
+                                    <input type="datetime-local" class="form-control" v-bind:readonly="!isHost" name="times" v-model="item.end">
+                                    <label for="end-time">&nbsp;&nbsp;&nbsp;End Time (AM/PM)</label>
+                                </div>
+                                <div class="form-check my-auto col-2">
+                                    <input class="form-check-input" v-if="isHost" type="radio" name="HostRadio" :id="item.tid">
+                                    <input class="form-check-input" v-if="!isHost" type="checkbox" name="guestAvail" v-bind:checked="item.available" :id="item.tid">
+                                </div>
+                                <div class="d-flex justify-content-end" role="toolbar" v-if="isHost">
+                                    <button type="button" class="btn btn-sm btn-secondary float-end me-2" @click="deleteTime(item.tid)">Delete Timeslot</button>
+                                    <button type="button" class="btn btn-sm btn-primary" @click="modifyTimes(item.start,item.end,item.tid)">Save Change</button>
+                                </div>
+
+                                <p v-if="isHost"> Guests available for this timeslot: {{ item.count }}</p>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="card-body pt-0" id="hosttime">
+
+                    </div>
+
+                    <div class="card-footer text-muted" v-if="isHost">
+                        <button class="btn btn-secondary float-end" onclick="addTimeform()">Add Another Availability</button>
+                    </div>
+
+                </div>
+
+                <div class="p-3 float-end d-grid gap-2 d-md-block">
+                    <a href="#" v-if="isHost" class="btn btn-danger" @click="deleteEvent()">Delete Event</a>
+                    <a href="#" v-if="isHost" class="btn btn-success" @click="confirmTime()">Finalize Event</a>
+                    <a href="#" v-if="!isHost" class="btn btn-success" @click="specifyAvailability()">Confirm Availability</a>
+                </div>
+
+
+            </div>
+        </div>
+
+
+        <!-- modal for changing user details -->
+        <div class="modal fade" id="edit-user" tabindex="-1" role="dialog" aria-hidden="true">
+            <!-- modal for editing use details -->
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="edit-example-long-title">Change User Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <form>
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <label for="changeEmail" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="changeEmail" v-model="email">
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label for="change-first" class="form-label">First name</label>
+                                        <input class="form-control" id="change-first" v-model="firstname">
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label for="change-last" class="form-label">Last name</label>
+                                        <input class="form-control" id="change-last" v-model="lastname">
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label for="change-address" class="form-label">Address</label>
+                                        <input class="form-control" id="change-address" v-model="address">
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label for="change-number" class="form-label">Phone number</label>
+                                        <input class="form-control" id="change-number" v-model="number">
+                                    </div>
+
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Discard Changes</button>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="usermodify()">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- modal for signing out -->
+        <div class="modal fade" id="signout-user" tabindex="-1" role="dialog" aria-hidden="true">
+            <!-- modal for signing out -->
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body text-center">
+                        <p class="mb-5">Are you sure you want to sign out?</p>
+
+                        <button type="button" class="btn btn-secondary " data-bs-dismiss="modal">No, bring me back.</button>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" v-on:click = "signout">Yes, sign out.</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+
+
+</body>
+
+</html>
